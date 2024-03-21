@@ -76,7 +76,7 @@ function createNewConnect(id, type) {
 class ShareRdp: Reactor.Component {
     function render() {
         var rdp_shared_string = translate("Enable RDP session sharing");
-        var cls = handler.is_share_rdp()  ? "selected" : "line-through";
+        var cls = handler.is_share_rdp()  ? "selected" : "";
         return <li class={cls}><span>{svg_checkmark}</span>{rdp_shared_string}</li>;
     }
     
@@ -95,7 +95,7 @@ class DirectServer: Reactor.Component {
     function render() {
         var text = translate("Enable direct IP access");
         var enabled = handler.get_option("direct-server") == "Y";
-        var cls = enabled ? "selected" : "line-through";
+        var cls = enabled ? "selected" : "";
         return <li class={cls}><span>{svg_checkmark}</span>{text}{enabled && <EditDirectAccessPort />}</li>;
     }
     
@@ -317,7 +317,7 @@ class MyIdMenu: Reactor.Component {
                 <li #whitelist title={translate('whitelist_tip')}>{translate('IP Whitelisting')}</li>
                 <li #socks5-server>{translate('Socks5 Proxy')}</li>
                 <div .separator />
-                <li #stop-service class={service_stopped ? "line-through" : "selected"}><span>{svg_checkmark}</span>{translate("Enable service")}</li>
+                <li #stop-service class={service_stopped ? "" : "selected"}><span>{svg_checkmark}</span>{translate("Enable service")}</li>
                 {is_win && handler.is_installed() ? <ShareRdp /> : ""}
                 <DirectServer />
                 {false && handler.using_public_server() && <li #allow-always-relay><span>{svg_checkmark}</span>{translate('Always connect via relay')}</li>}
@@ -356,15 +356,15 @@ class MyIdMenu: Reactor.Component {
 
     function toggleMenuState() {
         for (var el in $$(menu#config-options>li)) {
-            if (el.id && el.id.indexOf("enable-") == 0) {
-                var enabled = handler.get_option(el.id) != "N";
-                el.attributes.toggleClass("selected", enabled);
-                el.attributes.toggleClass("line-through", !enabled);
-            }
-            if (el.id && el.id.indexOf("allow-") == 0) {
+            if (el.id && el.id == 'enable-check-update') {
                 var enabled = handler.get_option(el.id) == "Y";
                 el.attributes.toggleClass("selected", enabled);
-                el.attributes.toggleClass("line-through", !enabled);
+            } else if (el.id && (el.id.indexOf("enable-") == 0 || el.id == 'allow-remote-config-modification')) {
+                var enabled = handler.get_option(el.id) != "N";
+                el.attributes.toggleClass("selected", enabled);
+            } else if (el.id && el.id.indexOf("allow-") == 0) {
+                var enabled = handler.get_option(el.id) == "Y";
+                el.attributes.toggleClass("selected", enabled);
             }
         }
     }
@@ -388,13 +388,13 @@ class MyIdMenu: Reactor.Component {
     }
 
     event click $(menu#config-options>li) (_, me) {
-        if (me.id && me.id.indexOf("enable-") == 0) {
-            handler.set_option(me.id, handler.get_option(me.id) == "N" ? "" : "N");
-        }
-        if (me.id && me.id.indexOf("allow-") == 0) {
+        if (me.id && me.id == 'enable-check-update') {
             handler.set_option(me.id, handler.get_option(me.id) == "Y" ? "" : "Y");
-        }
-        if (me.id == "whitelist") {
+        } else if (me.id && (me.id.indexOf("enable-") == 0 || me.id == 'allow-remote-config-modification')) {
+            handler.set_option(me.id, handler.get_option(me.id) == "N" ? "" : "N");
+        } else if (me.id && me.id.indexOf("allow-") == 0) {
+            handler.set_option(me.id, handler.get_option(me.id) == "Y" ? "" : "Y");
+        } else if (me.id == "whitelist") {
             var old_value = handler.get_option("whitelist").split(",").join("\n");
             msgbox("custom-whitelist", translate("IP Whitelisting"), "<div .form> \
             <div>" + translate("whitelist_sep") + "</div> \
@@ -1202,7 +1202,7 @@ function self.onMouse(evt) {
 }
 
 function check_if_overlay() {
-    if (!handler.get_option('allow-remote-config-modification')) {
+    if (handler.get_option('allow-remote-config-modification')) {
         var time0 = getTime();
         handler.check_mouse_time();
         self.timer(120ms, function() {

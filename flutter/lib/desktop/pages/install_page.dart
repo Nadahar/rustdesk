@@ -63,7 +63,7 @@ class _InstallPageBodyState extends State<_InstallPageBody>
     with WindowListener {
   late final TextEditingController controller;
   final RxBool startmenu = true.obs;
-  final RxBool desktopicon = true.obs;
+  final RxBool desktopicon = false.obs;
   final RxBool showProgress = false.obs;
   final RxBool btnEnabled = true.obs;
 

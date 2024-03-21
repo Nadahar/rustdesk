@@ -12,7 +12,7 @@ class Install: Reactor.Component {
             <button .button .outline #path style="margin-left: 1em">{translate('Change Path')}</button>
             </div>
             <div><button|checkbox #startmenu checked>{translate('Create start menu shortcuts')}</button></div>
-            <div><button|checkbox #desktopicon checked>{translate('Create desktop icon')}</button></div>
+            <div><button|checkbox #desktopicon>{translate('Create desktop icon')}</button></div>
             <div #agreement .link style="margin-top: 2em;">{translate('End-user license agreement')}</div>
             <div>{translate('agreement_tip')}</div>
             <div style="height: 1px; background: gray; margin-top: 1em" />
