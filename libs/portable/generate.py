@@ -58,12 +58,18 @@ def write_metadata(md5_table: dict, output_folder: str, exe: str):
     print(f"metadata had written to {output_path}")
 
 
-def build_portable(output_folder: str, target: str):
+def build_portable(output_folder: str, target: str, toolchain: str):
     os.chdir(output_folder)
-    if target:
-        os.system("cargo build --release --target " + target)
+    if (toolchain):
+        if target:
+            os.system("cargo +" + toolchain + " build --release --target " + target)
+        else:
+            os.system("cargo +" + toolchain + " build --release")        
     else:
-        os.system("cargo build --release")
+        if target:
+            os.system("cargo build --release --target " + target)
+        else:
+            os.system("cargo build --release")
 
 # Linux: python3 generate.py -f ../rustdesk-portable-packer/test -o . -e ./test/main.py
 # Windows: python3 .\generate.py -f ..\rustdesk\flutter\build\windows\runner\Debug\ -o . -e ..\rustdesk\flutter\build\windows\runner\Debug\rustdesk.exe
@@ -81,6 +87,8 @@ if __name__ == '__main__':
                       help="the target used by cargo")
     parser.add_option("-l", "--level", dest="level", type="int",
                       help="compression level, default is 11, highest", default=11)
+    parser.add_option("-c", "--toolchain", dest="toolchain",
+                      help="the toolchain used by cargo")
     (options, args) = parser.parse_args()
     folder = options.folder or './rustdesk'
     output_folder = os.path.abspath(options.output_folder or './')
@@ -98,4 +106,4 @@ if __name__ == '__main__':
     print("compression level: " + str(options.level))
     md5_table = generate_md5_table(folder, options.level)
     write_metadata(md5_table, output_folder, exe)
-    build_portable(output_folder, options.target)
+    build_portable(output_folder, options.target, options.toolchain)
