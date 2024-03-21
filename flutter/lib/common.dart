@@ -1397,7 +1397,9 @@ String translate(String name) {
 
 bool option2bool(String option, String value) {
   bool res;
-  if (option.startsWith("enable-")) {
+  if (option == "enable-check-update") {
+    res = value == "Y";
+  } else if (option.startsWith("enable-") || option == "allow-remote-config-modification") {
     res = value != "N";
   } else if (option.startsWith("allow-") ||
       option == "stop-service" ||
@@ -1414,7 +1416,9 @@ bool option2bool(String option, String value) {
 
 String bool2option(String option, bool b) {
   String res;
-  if (option.startsWith('enable-')) {
+  if (option == "enable-check-update") {
+    res = b ? 'Y' : '';
+  } else if (option.startsWith('enable-') || option == "allow-remote-config-modification") {
     res = b ? '' : 'N';
   } else if (option.startsWith('allow-') ||
       option == "stop-service" ||

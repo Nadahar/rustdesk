@@ -885,7 +885,7 @@ void setPasswordDialog() async {
     UppercaseValidationRule(),
     LowercaseValidationRule(),
     // SpecialCharacterValidationRule(),
-    MinCharactersValidationRule(8),
+    MinCharactersValidationRule(6),
   ];
 
   gFFI.dialogManager.show((setState, close, context) {
