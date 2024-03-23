@@ -258,6 +258,12 @@ jobs:
           folder: './SignOutput'
           recursive: false
 
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+           name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}
+           path: ./SignOutput/rustdesk-*.exe
+
       - name: Publish Release
         if: false
         uses: softprops/action-gh-release@v1
