@@ -9,6 +9,16 @@ on:
       upload-tag:
         type: string
         default: "nightly"
+  workflow_dispatch:
+    inputs:
+      upload-artifact:
+        description: Upload-Artifact
+        type: boolean
+        default: true
+      upload-tag:
+        description: Tag-not-in-use
+        type: string
+        default: "nightly"
 
 env:
   RUST_VERSION: "1.75" # https://github.com/rustdesk/rustdesk/discussions/7503
@@ -27,14 +37,14 @@ env:
   VERSION: "1.2.4"
   NDK_VERSION: "r26b"
   #signing keys env variable checks
-  ANDROID_SIGNING_KEY: "${{ secrets.ANDROID_SIGNING_KEY }}"
-  MACOS_P12_BASE64: "${{ secrets.MACOS_P12_BASE64 }}"
+  #ANDROID_SIGNING_KEY: "${{ secrets.ANDROID_SIGNING_KEY }}"
+  #MACOS_P12_BASE64: "${{ secrets.MACOS_P12_BASE64 }}"
   # To make a custom build with your own servers set the below secret values
-  RS_PUB_KEY: "${{ secrets.RS_PUB_KEY }}"
-  RENDEZVOUS_SERVER: "${{ secrets.RENDEZVOUS_SERVER }}"
-  API_SERVER: "${{ secrets.API_SERVER }}"
+  #RS_PUB_KEY: "${{ secrets.RS_PUB_KEY }}"
+  #RENDEZVOUS_SERVER: "${{ secrets.RENDEZVOUS_SERVER }}"
+  #API_SERVER: "${{ secrets.API_SERVER }}"
   UPLOAD_ARTIFACT: "${{ inputs.upload-artifact }}"
-  SIGN_BASE_URL: "${{ secrets.SIGN_BASE_URL }}"
+  #SIGN_BASE_URL: "${{ secrets.SIGN_BASE_URL }}"
 
 jobs:
   build-RustDeskTempTopMostWindow:
@@ -145,7 +155,8 @@ jobs:
           tar czf rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}-unsigned.tar.gz rustdesk
 
       - name: Sign rustdesk files
-        if: env.UPLOAD_ARTIFACT == 'true' && env.SIGN_BASE_URL != ''
+        if: false
+        #if: env.UPLOAD_ARTIFACT == 'true' && env.SIGN_BASE_URL != ''
         shell: bash
         run: |
           pip3 install requests argparse
@@ -176,14 +187,24 @@ jobs:
           sha256sum ../../SignOutput/rustdesk-*.msi
 
       - name: Sign rustdesk self-extracted file
-        if: env.UPLOAD_ARTIFACT == 'true' && env.SIGN_BASE_URL != ''
+        if: false
+        #if: env.UPLOAD_ARTIFACT == 'true' && env.SIGN_BASE_URL != ''
         shell: bash
         run: |
           BASE_URL=${{ secrets.SIGN_BASE_URL }} SECRET_KEY=${{ secrets.SIGN_SECRET_KEY }} python3 res/job.py sign_files ./SignOutput
 
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}-windows
+          path: |
+            ./SignOutput/rustdesk-*.exe
+            ./rustdesk-*.tar.gz
+
       - name: Publish Release
+        if: false
         uses: softprops/action-gh-release@v1
-        if: env.UPLOAD_ARTIFACT == 'true'
+        #if: env.UPLOAD_ARTIFACT == 'true'
         with:
           prerelease: true
           tag_name: ${{ env.TAG_NAME }}
@@ -274,7 +295,8 @@ jobs:
           fi
 
       - name: Sign rustdesk files
-        if: env.UPLOAD_ARTIFACT == 'true' && env.SIGN_BASE_URL != ''
+        if: false
+        #if: env.UPLOAD_ARTIFACT == 'true' && env.SIGN_BASE_URL != ''
         shell: bash
         run: |
           pip3 install requests argparse
@@ -293,14 +315,24 @@ jobs:
           tar czf rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.tar.gz rustdesk
 
       - name: Sign rustdesk self-extracted file
-        if: env.UPLOAD_ARTIFACT == 'true' && env.SIGN_BASE_URL != ''
+        if: false
+        #if: env.UPLOAD_ARTIFACT == 'true' && env.SIGN_BASE_URL != ''
         shell: bash
         run: |
           BASE_URL=${{ secrets.SIGN_BASE_URL }} SECRET_KEY=${{ secrets.SIGN_SECRET_KEY }} python3 res/job.py sign_files ./SignOutput/
 
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}-sciter-windows
+          path: |
+            ./SignOutput/rustdesk-*.exe
+            ./rustdesk-*.tar.gz
+
       - name: Publish Release
+        if: false
         uses: softprops/action-gh-release@v1
-        if: env.UPLOAD_ARTIFACT == 'true'
+        #if: env.UPLOAD_ARTIFACT == 'true'
         with:
           prerelease: true
           tag_name: ${{ env.TAG_NAME }}
@@ -309,6 +341,7 @@ jobs:
             ./rustdesk-*.tar.gz
 
   build-for-macOS-arm64:
+    if: false
     name: build-for-macOS-arm64
     runs-on: [self-hosted, macOS, ARM64]
     steps:
@@ -350,7 +383,7 @@ jobs:
           path: rustdesk-${{ env.VERSION }}-arm64.dmg # can not upload the directory directly or tar.gz file, which destroy the link structure, causing the codesign failed
 
       - name: Codesign app and create signed dmg
-        if: env.MACOS_P12_BASE64 != null && env.UPLOAD_ARTIFACT == 'true'
+        #if: env.MACOS_P12_BASE64 != null && env.UPLOAD_ARTIFACT == 'true'
         run: |
           # Patch create-dmg to give more attempts to unmount image
           CREATE_DMG="$(command -v create-dmg)"
@@ -358,11 +391,11 @@ jobs:
           sed -i -e 's/MAXIMUM_UNMOUNTING_ATTEMPTS=3/MAXIMUM_UNMOUNTING_ATTEMPTS=7/' "$CREATE_DMG"
           # start sign the rustdesk.app and dmg
           rm -rf *.dmg || true
-          codesign --force --options runtime -s ${{ secrets.MACOS_CODESIGN_IDENTITY }} --deep --strict ./flutter/build/macos/Build/Products/Release/RustDesk.app -vvv
+          #codesign --force --options runtime -s ${{ secrets.MACOS_CODESIGN_IDENTITY }} --deep --strict ./flutter/build/macos/Build/Products/Release/RustDesk.app -vvv
           create-dmg --icon "RustDesk.app" 200 190 --hide-extension "RustDesk.app" --window-size 800 400 --app-drop-link 600 185 rustdesk-${{ env.VERSION }}.dmg ./flutter/build/macos/Build/Products/Release/RustDesk.app
-          codesign --force --options runtime -s ${{ secrets.MACOS_CODESIGN_IDENTITY }} --deep --strict rustdesk-${{ env.VERSION }}.dmg -vvv
+          #codesign --force --options runtime -s ${{ secrets.MACOS_CODESIGN_IDENTITY }} --deep --strict rustdesk-${{ env.VERSION }}.dmg -vvv
           # notarize the rustdesk-${{ env.VERSION }}.dmg
-          rcodesign notary-submit --api-key-path ~/.p12/api-key.json  --staple rustdesk-${{ env.VERSION }}.dmg
+          #rcodesign notary-submit --api-key-path ~/.p12/api-key.json  --staple rustdesk-${{ env.VERSION }}.dmg
 
       - name: Rename rustdesk
         if: env.UPLOAD_ARTIFACT == 'true'
@@ -371,8 +404,15 @@ jobs:
               mv "$name" "${name%%.dmg}-aarch64.dmg"
           done
 
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}-macOS
+          path: rustdesk*-aarch64.dmg
+
       - name: Publish DMG package
-        if: env.UPLOAD_ARTIFACT == 'true'
+        if: false
+        #if: env.UPLOAD_ARTIFACT == 'true'
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
@@ -405,7 +445,8 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Import the codesign cert
-        if: env.MACOS_P12_BASE64 != null
+        if: false
+        #if: env.MACOS_P12_BASE64 != null
         uses: apple-actions/import-codesign-certs@v1
         with:
           p12-file-base64: ${{ secrets.MACOS_P12_BASE64 }}
@@ -413,13 +454,15 @@ jobs:
           keychain: rustdesk
 
       - name: Check sign and import sign key
-        if: env.MACOS_P12_BASE64 != null
+        if: false
+        #if: env.MACOS_P12_BASE64 != null
         run: |
           security default-keychain -s rustdesk.keychain
           security find-identity -v
 
       - name: Import notarize key
-        if: env.MACOS_P12_BASE64 != null
+        if: false
+        #if: env.MACOS_P12_BASE64 != null
         uses: timheuer/base64-to-file@v1.2
         with:
           # https://gregoryszorc.com/docs/apple-codesign/stable/apple_codesign_rcodesign.html#notarizing-and-stapling
@@ -428,7 +471,8 @@ jobs:
           encodedString: ${{ secrets.MACOS_NOTARIZE_JSON }}
 
       - name: Install rcodesign tool
-        if: env.MACOS_P12_BASE64 != null
+        if: false
+        #if: env.MACOS_P12_BASE64 != null
         shell: bash
         run: |
           pushd /tmp
@@ -497,15 +541,23 @@ jobs:
           sed -i -e 's/MAXIMUM_UNMOUNTING_ATTEMPTS=3/MAXIMUM_UNMOUNTING_ATTEMPTS=7/' "$CREATE_DMG"
           create-dmg --icon "RustDesk.app" 200 190 --hide-extension "RustDesk.app" --window-size 800 400 --app-drop-link 600 185 rustdesk-${{ env.VERSION }}-x64.dmg ./flutter/build/macos/Build/Products/Release/RustDesk.app
 
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}-macOS
+          path: rustdesk-${{ env.VERSION }}-x64.dmg
+
       - name: Upload unsigned macOS app
-        if: env.UPLOAD_ARTIFACT == 'true'
+        if: false
+        #if: env.UPLOAD_ARTIFACT == 'true'
         uses: actions/upload-artifact@master
         with:
           name: rustdesk-unsigned-macos-x64
           path: rustdesk-${{ env.VERSION }}-x64.dmg # can not upload the directory directly or tar.gz, which destroy the link structure, causing the codesign failed
 
       - name: Codesign app and create signed dmg
-        if: env.MACOS_P12_BASE64 != null && env.UPLOAD_ARTIFACT == 'true'
+        if: false
+        #if: env.MACOS_P12_BASE64 != null && env.UPLOAD_ARTIFACT == 'true'
         run: |
           # Patch create-dmg to give more attempts to unmount image
           CREATE_DMG="$(command -v create-dmg)"
@@ -523,14 +575,16 @@ jobs:
           rcodesign notary-submit --api-key-path ${{ github.workspace }}/rustdesk.json  --staple rustdesk-${{ env.VERSION }}.dmg
 
       - name: Rename rustdesk
-        if: env.UPLOAD_ARTIFACT == 'true'
+        if: false
+        #if: env.UPLOAD_ARTIFACT == 'true'
         run: |
           for name in rustdesk*??.dmg; do
               mv "$name" "${name%%.dmg}-${{ matrix.job.arch }}.dmg"
           done
 
       - name: Publish DMG package
-        if: env.UPLOAD_ARTIFACT == 'true'
+        if: false
+        #if: env.UPLOAD_ARTIFACT == 'true'
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
@@ -561,7 +615,14 @@ jobs:
         run: |
           tar czf rustdesk-${{ env.VERSION }}-macos-unsigned.tar.gz *.dmg
 
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}-macOS
+          path: rustdesk-${{ env.VERSION }}-macos-unsigned.tar.gz
+
       - name: Publish unsigned macos app
+        if: false
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
@@ -829,9 +890,16 @@ jobs:
           mkdir -p signed-apk; pushd signed-apk
           mv ../rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.apk .
 
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}-android
+          path: signed-apk/rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.apk
+
       - uses: r0adkll/sign-android-release@v1
+        if: false
         name: Sign app APK
-        if: env.ANDROID_SIGNING_KEY != null
+        #if: env.ANDROID_SIGNING_KEY != null
         id: sign-rustdesk
         with:
           releaseDirectory: ./signed-apk
@@ -844,14 +912,16 @@ jobs:
           BUILD_TOOLS_VERSION: "30.0.2"
 
       - name: Upload Artifacts
-        if: env.ANDROID_SIGNING_KEY != null && env.UPLOAD_ARTIFACT == 'true'
+        if: false
+        #if: env.ANDROID_SIGNING_KEY != null && env.UPLOAD_ARTIFACT == 'true'
         uses: actions/upload-artifact@master
         with:
           name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.apk
           path: ${{steps.sign-rustdesk.outputs.signedReleaseFile}}
 
       - name: Publish signed apk package
-        if: env.ANDROID_SIGNING_KEY != null && env.UPLOAD_ARTIFACT == 'true'
+        if: false
+        #if: env.ANDROID_SIGNING_KEY != null && env.UPLOAD_ARTIFACT == 'true'
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
@@ -860,7 +930,8 @@ jobs:
             ${{steps.sign-rustdesk.outputs.signedReleaseFile}}
 
       - name: Publish unsigned apk package
-        if: env.ANDROID_SIGNING_KEY == null && env.UPLOAD_ARTIFACT == 'true'
+        if: false
+        #if: env.ANDROID_SIGNING_KEY == null && env.UPLOAD_ARTIFACT == 'true'
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
@@ -1057,7 +1128,8 @@ jobs:
           path: target/release/liblibrustdesk.so
 
   build-rustdesk-lib-linux-arm:
-    if: ${{ inputs.upload-artifact }}
+    if: false
+    #if: ${{ inputs.upload-artifact }}
     needs: [generate-bridge-linux]
     name: build-rust-lib ${{ matrix.job.target }} (${{ matrix.job.os }}) [${{ matrix.job.extra-build-features }}]
     runs-on: [self-hosted, Linux, ARM64]
@@ -1266,7 +1338,8 @@ jobs:
           path: target/release/liblibrustdesk.so
 
   build-rustdesk-sciter-arm:
-    if: ${{ inputs.upload-artifact }}
+    if: false
+    #if: ${{ inputs.upload-artifact }}
     name: build-rustdesk(sciter) ${{ matrix.job.target }} (${{ matrix.job.os }}) [${{ matrix.job.extra-build-features }}]
     runs-on: [self-hosted, Linux, ARM64]
     strategy:
@@ -1448,7 +1521,8 @@ jobs:
           done
 
       - name: Publish debian package
-        if: matrix.job.extra-build-features == '' && env.UPLOAD_ARTIFACT == 'true'
+        if: false
+        #if: matrix.job.extra-build-features == '' && env.UPLOAD_ARTIFACT == 'true'
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
@@ -1458,13 +1532,14 @@ jobs:
 
       - name: Upload Artifact
         uses: actions/upload-artifact@master
-        if: ${{ contains(matrix.job.extra-build-features, 'flatpak') }}
+        #if: ${{ contains(matrix.job.extra-build-features, 'flatpak') }}
         with:
           name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}-sciter.deb
           path: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}-sciter.deb
 
   build-rustdesk-linux-arm:
-    if: ${{ inputs.upload-artifact }}
+    if: false
+    #if: ${{ inputs.upload-artifact }}
     needs: [build-rustdesk-lib-linux-arm]
     name: build-rustdesk ${{ matrix.job.target }} (${{ matrix.job.os }}) [${{ matrix.job.extra-build-features }}]
     runs-on: ubuntu-20.04 # 20.04 has more performance on arm build
@@ -1645,8 +1720,15 @@ jobs:
               cp "$name" "${name%%.deb}-${{ matrix.job.arch }}.deb"
           done
 
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}-deb
+          path: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.deb
+
       - name: Publish debian package
-        if: matrix.job.extra-build-features == '' && env.UPLOAD_ARTIFACT == 'true'
+        if: false
+        #if: matrix.job.extra-build-features == '' && env.UPLOAD_ARTIFACT == 'true'
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
@@ -1668,8 +1750,15 @@ jobs:
           pushd appimage
           sudo appimage-builder --skip-tests --recipe ./AppImageBuilder-${{ matrix.job.arch }}.yml
 
+      - name: Upload appimage Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}
+          path: ./appimage/rustdesk-${{ env.VERSION }}-*.AppImage
+
       - name: Publish appimage package
-        if: matrix.job.extra-build-features == 'appimage' && env.UPLOAD_ARTIFACT == 'true'
+        if: false
+        #if: matrix.job.extra-build-features == 'appimage' && env.UPLOAD_ARTIFACT == 'true'
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
@@ -1678,8 +1767,9 @@ jobs:
             ./appimage/rustdesk-${{ env.VERSION }}-*.AppImage
 
       - name: Upload Artifact
+        if: false
         uses: actions/upload-artifact@master
-        if: ${{ contains(matrix.job.extra-build-features, 'flatpak') }}
+        #if: ${{ contains(matrix.job.extra-build-features, 'flatpak') }}
         with:
           name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.deb
           path: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.deb
@@ -1741,8 +1831,15 @@ jobs:
       #     files: |
       #       res/rustdesk*.zst
 
+      - name: Upload fedora Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}
+          path: /opt/artifacts/rpm/*.rpm
+
       - name: Publish fedora package
-        if: matrix.job.extra-build-features == '' && env.UPLOAD_ARTIFACT == 'true'
+        if: false
+        #if: matrix.job.extra-build-features == '' && env.UPLOAD_ARTIFACT == 'true'
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
@@ -1888,8 +1985,15 @@ jobs:
               cp "$name" "${name%%.deb}-${{ matrix.job.arch }}.deb"
           done
 
+      - name: Upload debian Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}
+          path: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.deb
+
       - name: Publish debian package
-        if: matrix.job.extra-build-features == '' && env.UPLOAD_ARTIFACT == 'true'
+        if: false
+        #if: matrix.job.extra-build-features == '' && env.UPLOAD_ARTIFACT == 'true'
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
@@ -1898,8 +2002,9 @@ jobs:
             rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.deb
 
       - name: Upload Artifact
+        if: false
         uses: actions/upload-artifact@master
-        if: ${{ contains(matrix.job.extra-build-features, 'flatpak') }}
+        #if: ${{ contains(matrix.job.extra-build-features, 'flatpak') }}
         with:
           name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.deb
           path: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.deb
@@ -1946,8 +2051,15 @@ jobs:
           scripts: |
             cd res && HBB=`pwd`/.. FLUTTER=1 makepkg -f
 
+      - name: Upload archlinux Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}
+          path: res/rustdesk-${{ env.VERSION }}*.zst
+
       - name: Publish archlinux package
-        if: matrix.job.extra-build-features == '' && env.UPLOAD_ARTIFACT == 'true'
+        if: false
+        #if: matrix.job.extra-build-features == '' && env.UPLOAD_ARTIFACT == 'true'
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
@@ -1969,8 +2081,16 @@ jobs:
           pushd appimage
           sudo appimage-builder --skip-tests --recipe ./AppImageBuilder-x86_64.yml
 
+      - name: Upload appimage Artifacts
+        if: matrix.job.extra-build-features == 'appimage'
+        uses: actions/upload-artifact@v3
+        with:
+          name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}
+          path: ./appimage/rustdesk-${{ env.VERSION }}-*.AppImage
+
       - name: Publish appimage package
-        if: matrix.job.extra-build-features == 'appimage' && env.UPLOAD_ARTIFACT == 'true'
+        if: false
+        #if: matrix.job.extra-build-features == 'appimage' && env.UPLOAD_ARTIFACT == 'true'
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
@@ -1978,8 +2098,15 @@ jobs:
           files: |
             ./appimage/rustdesk-${{ env.VERSION }}-*.AppImage
 
+      - name: Upload fedora Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}
+          path: /opt/artifacts/rpm/*.rpm
+
       - name: Publish fedora package
-        if: matrix.job.extra-build-features == '' && env.UPLOAD_ARTIFACT == 'true'
+        if: false
+        #if: matrix.job.extra-build-features == '' && env.UPLOAD_ARTIFACT == 'true'
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
@@ -2062,6 +2189,7 @@ jobs:
   #           flatpak/rustdesk-${{ env.VERSION }}-${{ matrix.job.target }}.flatpak
 
   build-flatpak-amd64:
+    if: false
     name: Build Flatpak
     needs: [build-rustdesk-linux-amd64]
     runs-on: ubuntu-20.04
@@ -2130,9 +2258,16 @@ jobs:
             flatpak-builder --user --force-clean --repo=repo ./build ./rustdesk.json
             flatpak build-bundle ./repo rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.flatpak com.rustdesk.RustDesk
 
+      - name: Upload flatpack Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}
+          path: flatpak/rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.flatpak
+
       - name: Publish flatpak package
+        if: false
         uses: softprops/action-gh-release@v1
-        if: env.UPLOAD_ARTIFACT == 'true'
+        #if: env.UPLOAD_ARTIFACT == 'true'
         with:
           prerelease: true
           tag_name: ${{ env.TAG_NAME }}
@@ -2196,8 +2331,15 @@ jobs:
           sha256sum "${dir_name}".tar.gz
           popd
 
+      - name: Upload web Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}
+          path: flutter/build/rustdesk-${{ env.VERSION }}-${{ env.RELEASE_NAME }}.tar.gz
+
       - name: Publish web
-        if: env.UPLOAD_ARTIFACT == 'true'
+        if: false
+        #if: env.UPLOAD_ARTIFACT == 'true'
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true

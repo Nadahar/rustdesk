@@ -22,14 +22,14 @@ env:
   VERSION: "1.2.4"
   NDK_VERSION: "r26b"
   #signing keys env variable checks
-  ANDROID_SIGNING_KEY: '${{ secrets.ANDROID_SIGNING_KEY }}'
-  MACOS_P12_BASE64: '${{ secrets.MACOS_P12_BASE64 }}'
+  #ANDROID_SIGNING_KEY: '${{ secrets.ANDROID_SIGNING_KEY }}'
+  #MACOS_P12_BASE64: '${{ secrets.MACOS_P12_BASE64 }}'
   # To make a custom build with your own servers set the below secret values
-  RS_PUB_KEY: '${{ secrets.RS_PUB_KEY }}'
-  RENDEZVOUS_SERVER: '${{ secrets.RENDEZVOUS_SERVER }}'
-  API_SERVER: '${{ secrets.API_SERVER }}'
+  #RS_PUB_KEY: '${{ secrets.RS_PUB_KEY }}'
+  #RENDEZVOUS_SERVER: '${{ secrets.RENDEZVOUS_SERVER }}'
+  #API_SERVER: '${{ secrets.API_SERVER }}'
   UPLOAD_ARTIFACT: true
-  SIGN_BASE_URL: "${{ secrets.SIGN_BASE_URL }}"
+  #SIGN_BASE_URL: "${{ secrets.SIGN_BASE_URL }}"
 
 jobs:
   build-for-macOS-arm64:
