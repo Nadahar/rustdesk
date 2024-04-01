@@ -66,7 +66,7 @@ impl RendezvousMediator {
                 sleep(1.).await;
             }
         }
-        crate::hbbs_http::sync::start();
+        //crate::hbbs_http::sync::start();
         let mut nat_tested = false;
         check_zombie();
         let server = new_server();
