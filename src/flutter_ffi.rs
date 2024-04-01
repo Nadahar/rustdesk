@@ -47,13 +47,13 @@ fn initialize(app_dir: &str) {
     #[cfg(target_os = "android")]
     {
         // flexi_logger can't work when android_logger initialized.
-        #[cfg(debug_assertions)]
-        android_logger::init_once(
-            android_logger::Config::default()
-                .with_max_level(log::LevelFilter::Debug) // limit log level
-                .with_tag("ffi"), // logs will show under mytag tag
-        );
-        #[cfg(not(debug_assertions))]
+        //#[cfg(debug_assertions)]
+        //android_logger::init_once(
+        //    android_logger::Config::default()
+        //        .with_max_level(log::LevelFilter::Debug) // limit log level
+        //        .with_tag("ffi"), // logs will show under mytag tag
+        //);
+        //#[cfg(not(debug_assertions))]
         hbb_common::init_log(false, "");
         #[cfg(feature = "mediacodec")]
         scrap::mediacodec::check_mediacodec();
@@ -1992,9 +1992,9 @@ pub fn plugin_feature_is_enabled() -> SyncReturn<bool> {
     #[cfg(feature = "plugin_framework")]
     #[cfg(not(any(target_os = "android", target_os = "ios")))]
     {
-        #[cfg(debug_assertions)]
-        let enabled = true;
-        #[cfg(not(debug_assertions))]
+        //#[cfg(debug_assertions)]
+        //let enabled = true;
+        //#[cfg(not(debug_assertions))]
         let enabled = is_installed();
         SyncReturn(enabled)
     }

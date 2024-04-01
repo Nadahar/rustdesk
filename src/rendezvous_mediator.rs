@@ -388,11 +388,11 @@ impl RendezvousMediator {
 
     pub async fn start(server: ServerPtr, host: String) -> ResultType<()> {
         log::info!("start rendezvous mediator of {}", host);
-        if cfg!(debug_assertions) && option_env!("TEST_TCP").is_some() {
-            Self::start_tcp(server, host).await
-        } else {
+        //if cfg!(debug_assertions) && option_env!("TEST_TCP").is_some() {
+        //    Self::start_tcp(server, host).await
+        //} else {
             Self::start_udp(server, host).await
-        }
+        //}
     }
 
     async fn handle_request_relay(&self, rr: RequestRelay, server: ServerPtr) -> ResultType<()> {

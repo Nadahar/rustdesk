@@ -319,10 +319,10 @@ impl UI {
     }
 
     fn is_release(&self) -> bool {
-        #[cfg(not(debug_assertions))]
+        //#[cfg(not(debug_assertions))]
         return true;
-        #[cfg(debug_assertions)]
-        return false;
+        //#[cfg(debug_assertions)]
+        //return false;
     }
 
     fn is_share_rdp(&self) -> bool {
