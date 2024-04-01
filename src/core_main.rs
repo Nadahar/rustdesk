@@ -1,9 +1,9 @@
 #[cfg(windows)]
 use crate::client::translate;
-#[cfg(not(debug_assertions))]
+#[cfg(any(not(debug_assertions), debug_assertions))]
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 use crate::platform::breakdown_callback;
-#[cfg(not(debug_assertions))]
+#[cfg(any(not(debug_assertions), debug_assertions))]
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 use hbb_common::platform::register_breakdown_handler;
 use hbb_common::{config, log};
@@ -85,7 +85,7 @@ pub fn core_main() -> Option<Vec<String>> {
             hbb_common::allow_err!(crate::run_me(vec!["--tray"]));
         }
     }
-    #[cfg(not(debug_assertions))]
+#[cfg(any(not(debug_assertions), debug_assertions))]
     #[cfg(not(any(target_os = "android", target_os = "ios")))]
     register_breakdown_handler(breakdown_callback);
     #[cfg(target_os = "linux")]
@@ -449,9 +449,9 @@ pub fn core_main() -> Option<Vec<String>> {
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 fn init_plugins(args: &Vec<String>) {
     if args.is_empty() || "--server" == (&args[0] as &str) {
-        #[cfg(debug_assertions)]
-        let load_plugins = true;
-        #[cfg(not(debug_assertions))]
+        //#[cfg(debug_assertions)]
+        //let load_plugins = true;
+        //#[cfg(not(debug_assertions))]
         let load_plugins = crate::platform::is_installed();
         if load_plugins {
             crate::plugin::init();

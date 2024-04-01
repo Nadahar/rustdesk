@@ -7,15 +7,15 @@ pub mod macos;
 #[cfg(target_os = "windows")]
 pub mod windows;
 
-#[cfg(not(debug_assertions))]
+//#[cfg(not(debug_assertions))]
 use crate::{config::Config, log};
-#[cfg(not(debug_assertions))]
+//#[cfg(not(debug_assertions))]
 use std::process::exit;
 
-#[cfg(not(debug_assertions))]
+//#[cfg(not(debug_assertions))]
 static mut GLOBAL_CALLBACK: Option<Box<dyn Fn()>> = None;
 
-#[cfg(not(debug_assertions))]
+//#[cfg(not(debug_assertions))]
 extern "C" fn breakdown_signal_handler(sig: i32) {
     let mut stack = vec![];
     backtrace::trace(|frame| {
@@ -69,7 +69,7 @@ extern "C" fn breakdown_signal_handler(sig: i32) {
     exit(0);
 }
 
-#[cfg(not(debug_assertions))]
+//#[cfg(not(debug_assertions))]
 pub fn register_breakdown_handler<T>(callback: T)
 where
     T: Fn() + 'static,

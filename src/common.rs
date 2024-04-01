@@ -1488,11 +1488,11 @@ impl ClipboardContext {
 }
 
 pub fn load_custom_client() {
-    #[cfg(debug_assertions)]
-    if let Ok(data) = std::fs::read_to_string("./custom.txt") {
-        read_custom_client(data.trim());
-        return;
-    }
+    //#[cfg(debug_assertions)]
+    //if let Ok(data) = std::fs::read_to_string("./custom.txt") {
+    //    read_custom_client(data.trim());
+    //    return;
+    //}
     let Some(path) = std::env::current_exe().map_or(None, |x| x.parent().map(|x| x.to_path_buf()))
     else {
         return;
