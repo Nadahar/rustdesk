@@ -58,18 +58,17 @@ def write_metadata(md5_table: dict, output_folder: str, exe: str):
     print(f"metadata had written to {output_path}")
 
 
-def build_portable(output_folder: str, target: str, toolchain: str):
+def build_portable(output_folder: str, target: str, debug: bool, toolchain: str):
     os.chdir(output_folder)
-    if (toolchain):
-        if target:
-            os.system("cargo +" + toolchain + " build --release --target " + target)
-        else:
-            os.system("cargo +" + toolchain + " build --release")        
-    else:
-        if target:
-            os.system("cargo build --release --target " + target)
-        else:
-            os.system("cargo build --release")
+    build_cmd = 'cargo'
+    if toolchain:
+        build_cmd += ' +' + toolchain
+    build_cmd += ' build'
+    if not debug:
+        build_cmd += ' --release'
+    if target:
+        build_cmd += ' --target ' + target
+    os.system(build_cmd)
 
 # Linux: python3 generate.py -f ../rustdesk-portable-packer/test -o . -e ./test/main.py
 # Windows: python3 .\generate.py -f ..\rustdesk\flutter\build\windows\runner\Debug\ -o . -e ..\rustdesk\flutter\build\windows\runner\Debug\rustdesk.exe
@@ -89,6 +88,8 @@ if __name__ == '__main__':
                       help="compression level, default is 11, highest", default=11)
     parser.add_option("-c", "--toolchain", dest="toolchain",
                       help="the toolchain used by cargo")
+    parser.add_option("-d", "--debug", action="store_true", dest="debug",
+                      help="make a debug build")
     (options, args) = parser.parse_args()
     folder = options.folder or './rustdesk'
     output_folder = os.path.abspath(options.output_folder or './')
@@ -101,9 +102,11 @@ if __name__ == '__main__':
     if not exe.startswith(os.path.abspath(folder)):
         print("the executable must locate in source folder")
         exit(-1)
+    if options.debug and options.level > 2:
+        options.level = 2
     exe = '.' + exe[len(os.path.abspath(folder)):]
     print("executable path: " + exe)
     print("compression level: " + str(options.level))
     md5_table = generate_md5_table(folder, options.level)
     write_metadata(md5_table, output_folder, exe)
-    build_portable(output_folder, options.target, options.toolchain)
+    build_portable(output_folder, options.target, options.debug, options.toolchain)
