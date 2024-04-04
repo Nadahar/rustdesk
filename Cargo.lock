@@ -222,43 +222,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4668cab20f66d8d020e1fbc0ebe47217433c1b6c8f2040faf858554e394ace6"
 
 [[package]]
-name = "apple-bindgen"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38f109ee76f68b4767848cb5dc93bfcc7c425deca849c4c81fa11cdce525e3d2"
-dependencies = [
- "apple-sdk",
- "bindgen 0.63.0",
- "derive_more",
- "regex",
- "serde 1.0.190",
- "thiserror",
- "toml 0.6.0",
-]
-
-[[package]]
-name = "apple-sdk"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a04f192a700686ee70008ff4e4eb76fe7d11814ab93b7ee9d48c36b9a9f0bd2a"
-dependencies = [
- "plist",
- "serde 1.0.190",
- "serde_json 1.0.107",
-]
-
-[[package]]
-name = "apple-sys"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12b3a1c3342678cd72676d0c1644fde496c1f65ea41f51465f54a89cad3bdf34"
-dependencies = [
- "apple-bindgen",
- "apple-sdk",
- "objc",
-]
-
-[[package]]
 name = "arboard"
 version = "3.3.1"
 source = "git+https://github.com/fufesou/arboard?branch=feat/x11_set_conn_timeout#956b5f8693b4fc7fddd7b8cafbe1111a892b34b1"
@@ -543,28 +506,6 @@ dependencies = [
  "regex",
  "rustc-hash",
  "shlex",
- "which",
-]
-
-[[package]]
-name = "bindgen"
-version = "0.63.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36d860121800b2a9a94f9b5604b332d5cffb234ce17609ea479d723dbc9d3885"
-dependencies = [
- "bitflags 1.3.2",
- "cexpr",
- "clang-sys",
- "lazy_static",
- "lazycell",
- "log",
- "peeking_take_while",
- "proc-macro2 1.0.79",
- "quote 1.0.35",
- "regex",
- "rustc-hash",
- "shlex",
- "syn 1.0.109",
  "which",
 ]
 
@@ -1152,12 +1093,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "21a53c0a4d288377e7415b53dcfc3c04da5cdc2cc95c8d5ac178b58f0b861ad6"
 
 [[package]]
-name = "convert_case"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6245d59a3e82a7fc217c5828a6692dbc6dfb63a0c8c90495621f7b9d79704a0e"
-
-[[package]]
 name = "core-foundation"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1605,19 +1540,6 @@ checksum = "3418329ca0ad70234b9735dc4ceed10af4df60eff9c8e7b06cb5e520d92c3535"
 dependencies = [
  "proc-macro2 1.0.79",
  "quote 1.0.35",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "derive_more"
-version = "0.99.17"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fb810d30a7c1953f91334de7244731fc3f3c10d7fe163338a35b9f640960321"
-dependencies = [
- "convert_case",
- "proc-macro2 1.0.79",
- "quote 1.0.35",
- "rustc_version",
  "syn 1.0.109",
 ]
 
@@ -3358,10 +3280,9 @@ dependencies = [
 [[package]]
 name = "keepawake"
 version = "0.4.3"
-source = "git+https://github.com/rustdesk-org/keepawake-rs#ad94454a75cf1ff9e95e217dee9dd6a378bf625e"
+source = "git+https://github.com/Nadahar/keepawake-rs#c8626e68b87585d9415c7c8f3529297b3159bd7e"
 dependencies = [
  "anyhow",
- "apple-sys",
  "cfg-if 1.0.0",
  "core-foundation 0.9.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "shadow-rs",
@@ -3943,15 +3864,6 @@ checksum = "d273983c5a657a70a3e8f2a01329822f3b8c8172b73826411a55751e404a0a4a"
 dependencies = [
  "memchr",
  "minimal-lexical",
-]
-
-[[package]]
-name = "nom8"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae01545c9c7fc4486ab7debaf2aad7003ac19431791868fb2e8066df97fad2f8"
-dependencies = [
- "memchr",
 ]
 
 [[package]]
@@ -6448,25 +6360,13 @@ dependencies = [
 
 [[package]]
 name = "toml"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fb9d890e4dc9298b70f740f615f2e05b9db37dce531f6b24fb77ac993f9f217"
-dependencies = [
- "serde 1.0.190",
- "serde_spanned",
- "toml_datetime 0.5.1",
- "toml_edit 0.18.1",
-]
-
-[[package]]
-name = "toml"
 version = "0.7.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd79e69d3b627db300ff956027cc6c3798cef26d22526befdfcd12feeb6d2257"
 dependencies = [
  "serde 1.0.190",
  "serde_spanned",
- "toml_datetime 0.6.5",
+ "toml_datetime",
  "toml_edit 0.19.15",
 ]
 
@@ -6478,17 +6378,8 @@ checksum = "8ff9e3abce27ee2c9a37f9ad37238c1bdd4e789c84ba37df76aa4d528f5072cc"
 dependencies = [
  "serde 1.0.190",
  "serde_spanned",
- "toml_datetime 0.6.5",
+ "toml_datetime",
  "toml_edit 0.20.7",
-]
-
-[[package]]
-name = "toml_datetime"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4553f467ac8e3d374bc9a177a26801e5d0f9b211aa1673fb137a403afd1c9cf5"
-dependencies = [
- "serde 1.0.190",
 ]
 
 [[package]]
@@ -6502,19 +6393,6 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
-version = "0.18.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "56c59d8dd7d0dcbc6428bf7aa2f0e823e26e43b3c9aca15bbc9475d23e5fa12b"
-dependencies = [
- "indexmap 1.9.3",
- "nom8",
- "serde 1.0.190",
- "serde_spanned",
- "toml_datetime 0.5.1",
-]
-
-[[package]]
-name = "toml_edit"
 version = "0.19.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b5bb770da30e5cbfde35a2d7b9b8a2c4b8ef89548a7a6aeab5c9a576e3e7421"
@@ -6522,7 +6400,7 @@ dependencies = [
  "indexmap 2.0.2",
  "serde 1.0.190",
  "serde_spanned",
- "toml_datetime 0.6.5",
+ "toml_datetime",
  "winnow",
 ]
 
@@ -6535,7 +6413,7 @@ dependencies = [
  "indexmap 2.0.2",
  "serde 1.0.190",
  "serde_spanned",
- "toml_datetime 0.6.5",
+ "toml_datetime",
  "winnow",
 ]
 
